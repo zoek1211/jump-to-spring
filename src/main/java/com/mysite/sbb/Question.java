@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -25,11 +26,17 @@ public class Question {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
-    private List<Answer> answers; // ANSWER_ID_LIST 같은 칼럼은 생기지 않는다.
+    // Question 엔티티가 저장될 때 Answer 엔티티도 함께 저장되고, Question 엔티티가 삭제될 때 Answer 엔티티도 함께 삭제된다.
+    @OneToMany(mappedBy = "question", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<Answer> answers = new ArrayList<>();
 
-    // mappedBy 속성을 지정하지 않으면 중간테이블을 만든다.
-    // question_answers 테이블 생성됨. 필요없는 테이블이므로 mappedBy 속성을 지정해야 한다.
-//    @OneToMany(cascade = CascadeType.REMOVE)
-//    private List<Answer> answers;
+    public Answer addAnswer(String content) {
+        Answer answer = new Answer();
+        answer.setContent(content);
+        answer.setQuestion(this);
+        answer.setCreateDate(LocalDateTime.now());
+        answers.add(answer);
+
+        return answer;
+    }
 }
