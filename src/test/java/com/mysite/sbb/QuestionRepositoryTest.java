@@ -1,5 +1,6 @@
 package com.mysite.sbb;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,20 @@ class QuestionRepositoryTest {
 
         Question question = questions.get(0);
         assertThat(question.getSubject()).isEqualTo("sbb가 무엇인가요?");
+    }
+
+    @Test
+    @DisplayName("수정")
+    @Transactional // transactional 붙이면 rollback 되므로 테스트 후 데이터가 원래대로 돌아간다.
+    void t6() {
+        Question question = questionRepository.findById(1).get();
+        assertThat(question).isNotNull();
+
+        question.setSubject("수정된 제목");
+        questionRepository.save(question);
+
+        Question foundQuestion = questionRepository.findBySubject("수정된 제목").get();
+        assertThat(foundQuestion).isNotNull();
     }
 
 }
